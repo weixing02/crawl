@@ -1,5 +1,8 @@
 <template>
   <div id="app">
+    <el-button type="text" @click="dialogVisible = true">
+      查看说明
+    </el-button>
     <el-radio v-model="type" label="lazada">lazada</el-radio>
     <el-radio v-model="type" label="shopee">shopee</el-radio>
     <el-input
@@ -17,10 +20,6 @@
       </li>
     </ul>
 
-    <el-button type="text" @click="dialogVisible = true">
-      查看说明
-    </el-button>
-
     <el-dialog
       title="使用说明"
       :visible.sync="dialogVisible"
@@ -32,11 +31,11 @@
         操作步骤：
         <p>1. 进入对应的商品列表页面</p>
         <p>2. 打开调试器：【点击F12】或者【点击右键】-【检查】</p>
-        <p>3. 选择network（网络）</p>
+        <p>3. 选择Network（网络）</p>
         <p>4. 找到对应的请求接口（获取数据），并复制他们</p>
         <p>5. lazada和shopee对应的数据接口不同，可以参照：</p>
         <p>
-          - lazada接口：https://www.lazada.co.th/shop-mobile-cases-and-covers
+          - lazada接口：https://www.lazada.co.th/[分类名称]
         </p>
         <p>- shopee接口： https://shopee.co.th/api/v4/recommend/recommend</p>
         <img src="./assets/intro1.png" style="width: 100%;" />
@@ -67,7 +66,7 @@ export default {
       if (this.type === 'lazada') {
         try {
           this.urls = JSON.parse(this.data).mods?.listItems?.map((item) => {
-            return `https://${item.itemUrl}`
+            return `https://${item.itemUrl}?${item.queryString}`
           })
         } catch {
           this.urls = ['数据错误']
@@ -85,6 +84,19 @@ export default {
           this.urls = ['数据错误']
         }
       }
+    },
+    removeSetting(item) {
+      var index = this.form.settings.indexOf(item)
+      if (index !== -1) {
+        this.form.settings.splice(index, 1)
+      }
+    },
+    addSetting() {
+      this.form.settings.push({
+        name: '',
+        key: '',
+        val: '',
+      })
     },
   },
   mounted() {},
