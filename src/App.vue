@@ -3,16 +3,60 @@
     <el-button type="text" @click="dialogVisible = true">
       查看说明
     </el-button>
+    <br />
     <el-radio v-model="type" label="lazada">lazada</el-radio>
     <el-radio v-model="type" label="shopee">shopee</el-radio>
-    <el-input
+    <!-- <el-input
       class="input"
       placeholder="请输入数据"
       v-model="data"
       clearable
-    ></el-input>
-    <el-button class="button" type="primary" @click="generate">
+    ></el-input> -->
+    <div>
+      <el-form-item
+        v-for="(item, index) in form.settings"
+        :key="index"
+        :label="'设置' + (index + 1)"
+        style="display: block;"
+      >
+        <el-input
+          placeholder="请输入数据"
+          v-model.trim="item.data"
+          style="width: 50%; margin: 10px;"
+        />
+        <el-form-item>
+          <el-button @click.prevent="removeSetting(item)" type="danger">
+            删除
+          </el-button>
+        </el-form-item>
+      </el-form-item>
+    </div>
+
+    <el-form-item label=" ">
+      <el-button
+        icon="el-icon-circle-plus-outline"
+        @click="addSetting()"
+        type="success"
+      >
+        新增一条
+      </el-button>
+    </el-form-item>
+
+    <el-button
+      class="button"
+      type="primary"
+      @click="generate"
+      style="margin-left: 10px;"
+    >
       提取数据
+    </el-button>
+    <el-button
+      class="button"
+      type="primary"
+      @click="copy"
+      style="margin-left: 10px;"
+    >
+      一键复制
     </el-button>
     <ul>
       <li v-for="(item, index) in urls" :key="index + item">
@@ -50,6 +94,7 @@
 </template>
 
 <script>
+import { ElFormItem } from 'element-ui'
 export default {
   name: 'App',
   data() {
@@ -58,27 +103,50 @@ export default {
       type: 'lazada', // 1 lazada  2 shopy
       urls: [],
       dialogVisible: false,
+      form: {
+        settings: [
+          {
+            data: '',
+          },
+        ],
+      },
     }
   },
-  components: {},
+  components: { ElFormItem },
   methods: {
+    open(t) {
+      this.$message(t)
+    },
     generate() {
+      this.urls = []
       if (this.type === 'lazada') {
         try {
-          this.urls = JSON.parse(this.data).mods?.listItems?.map((item) => {
-            return `https://${item.itemUrl}?${item.querystring}`
+          this.form.settings.forEach((setting) => {
+            if (!setting.data) return
+            let temp = []
+            temp = JSON.parse(setting.data).mods?.listItems?.map((item) => {
+              return `https://${item.itemUrl}?${item.querystring}`
+            })
+            this.urls = [...this.urls, ...temp]
           })
         } catch {
           this.urls = ['数据错误']
         }
       } else {
         try {
-          console.log(JSON.parse(this.data).data?.sections?.[0])
-          this.urls = JSON.parse(
-            this.data,
-          ).data?.sections?.[0]?.data?.item?.map((item) => {
-            const name = item.name.trim().replace(/\s+/g, '-').replace('#', '-')
-            return `https://shopee.co.th/${name}-i.${item.shopid}.${item.itemid}`
+          this.form.settings.forEach((setting) => {
+            if (!setting.data) return
+            let temp = []
+            temp = JSON.parse(
+              setting.data,
+            ).data?.sections?.[0]?.data?.item?.map((item) => {
+              const name = item.name
+                .trim()
+                .replace(/\s+/g, '-')
+                .replace('#', '-')
+              return `https://shopee.co.th/${name}-i.${item.shopid}.${item.itemid}`
+            })
+            this.urls = [...this.urls, ...temp]
           })
         } catch {
           this.urls = ['数据错误']
@@ -97,6 +165,34 @@ export default {
         key: '',
         val: '',
       })
+    },
+    copy() {
+      this.textCopy(this.urls.join('\n'))
+    },
+    textCopy(t) {
+      // 如果当前浏览器版本不兼容navigator.clipboard
+      if (!navigator.clipboard) {
+        var ele = document.createElement('input')
+        ele.value = t
+        document.body.appendChild(ele)
+        ele.select()
+        document.execCommand('copy')
+        document.body.removeChild(ele)
+        if (document.execCommand('copy')) {
+          this.open('复制成功！')
+        } else {
+          this.open('复制失败！')
+        }
+      } else {
+        navigator.clipboard
+          .writeText(t)
+          .then(function () {
+            this.open('复制成功！')
+          })
+          .catch(function () {
+            this.open('复制失败！')
+          })
+      }
     },
   },
   mounted() {},
