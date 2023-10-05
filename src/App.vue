@@ -77,7 +77,7 @@ export default {
           this.urls = JSON.parse(
             this.data,
           ).data?.sections?.[0]?.data?.item?.map((item) => {
-            const name = item.name.trim().replace(/\s+/g, '-')
+            const name = item.name.trim().replace(/\s+/g, '-').replace('#', '-')
             return `https://shopee.co.th/${name}-i.${item.shopid}.${item.itemid}`
           })
         } catch {
