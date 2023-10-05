@@ -170,6 +170,7 @@ export default {
       this.textCopy(this.urls.join('\n'))
     },
     textCopy(t) {
+      const self = this
       // 如果当前浏览器版本不兼容navigator.clipboard
       if (!navigator.clipboard) {
         var ele = document.createElement('input')
@@ -179,18 +180,18 @@ export default {
         document.execCommand('copy')
         document.body.removeChild(ele)
         if (document.execCommand('copy')) {
-          this.open('复制成功！')
+          self.open('复制成功！')
         } else {
-          this.open('复制失败！')
+          self.open('复制失败！')
         }
       } else {
         navigator.clipboard
           .writeText(t)
           .then(function () {
-            this.open('复制成功！')
+            self.open('复制成功！')
           })
           .catch(function () {
-            this.open('复制失败！')
+            self.open('复制失败！')
           })
       }
     },
