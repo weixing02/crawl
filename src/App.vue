@@ -66,7 +66,7 @@ export default {
       if (this.type === 'lazada') {
         try {
           this.urls = JSON.parse(this.data).mods?.listItems?.map((item) => {
-            return `https://${item.itemUrl}?${item.queryString}`
+            return `https://${item.itemUrl}?${item.querystring}`
           })
         } catch {
           this.urls = ['数据错误']
